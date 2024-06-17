@@ -1,10 +1,19 @@
-package com.example.fa1;
+package com.example.fa.Controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
-public class Controller {
+import java.io.IOException;
+import java.util.Objects;
+
+public class Result {
     @FXML
     private TextField nameField;
     @FXML
@@ -16,8 +25,10 @@ public class Controller {
     @FXML
     private Label resultLabel;
 
+
+
     @FXML
-    private void resultInfo() {
+    private void resultInfo(ActionEvent actionEvent) throws IOException {
         try {
             String name = nameField.getText();
             if (name.isEmpty() || name.trim().isEmpty()) {
@@ -41,24 +52,29 @@ public class Controller {
                 resultLabel.setText("Please enter a Valid Role");
                 return;
             }
+
             int numDependents = Integer.parseInt(dependentField.getText());
             int hoursWorked = Integer.parseInt(hoursField.getText());
 
-            double grossPay = hoursWorked * 1000.0;
-            double socialSecurityDeduction = grossPay * 0.0785;
-            double federalTaxDeduction = (grossPay - (grossPay * 0.05 * numDependents)) * 0.15;
-            double membershipFee = grossPay * 0.15;
-            double netPay = grossPay - (socialSecurityDeduction + federalTaxDeduction + membershipFee);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/fa/view2.fxml"));
+            Parent root = loader.load();
 
 
-            String resultBuilder =
-                    "Role: " + role + "\n" +
-                    "Gross: " + String.format("%,.2f", grossPay) + "\n" +
-                    "Net: " + String.format("%,.2f", netPay) + "\n";
+            displayResult dr = loader.getController();
+            dr.setRole(role);
+            dr.setHoursWorked(hoursWorked);
+            dr.setNumDependents(numDependents);
 
-            resultLabel.setText(resultBuilder);
+            dr.showResult();
+
+            Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
         } catch (NumberFormatException x) {
             resultLabel.setText("Invalid input. Please Check Again");
         }
     }
+
 }
